@@ -6,6 +6,8 @@ const authMiddleware = require('../middleware/auth.middleware');
 
 const restaurantMiddleware = require('../middleware/restaurants.middleware');
 
+const reviewMiddleware = require('../middleware/review.middleware');
+
 const routerRestaurants = express.Router();
 
 routerRestaurants.use(authMiddleware.protect);
@@ -38,7 +40,13 @@ routerRestaurants
   );
 routerRestaurants
   .route('/reviews/:restaurantId/:id')
-  .patch(restaurantsControllers.updateReview)
-  .delete(restaurantsControllers.deleteReview);
+  .patch(
+    reviewMiddleware.validIfExistReview,
+    restaurantsControllers.updateReview
+  )
+  .delete(
+    reviewMiddleware.validIfExistReview,
+    restaurantsControllers.deleteReview
+  );
 
 module.exports = routerRestaurants;

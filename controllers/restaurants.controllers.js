@@ -107,26 +107,18 @@ exports.createReview = catchAsync(async (req, res) => {
 
 exports.updateReview = catchAsync(async (req, res) => {
   const { comment, rating } = req.body;
-  const { restaurantId, id } = req.params;
-  const { sessionUser } = req;
-  const reviews = await Review.findOne({
-    where: {
-      id,
-      restaurantId,
-      status: 'active',
-    },
-  });
-  if (!reviews) {
-    return next(new AppError(`Review with id ${id} not found`, 404));
-  }
-  if (reviews.userId !== sessionUser.id) {
-    return next(
-      new AppError('You are not authorized to update this review', 401)
-    );
-  }
-
-  await Review.update({ comment, rating });
-
+  const user = req.sessionUser;
+  const { review } = req;
+  await review.update(
+    { comment, rating },
+    {
+      where: {
+        id: req.params.id,
+        restaurantId: req.params.restaurantId,
+        userId: user.id,
+      },
+    }
+  );
   res.status(200).json({
     status: 'success',
     message: 'Review has been updated',
@@ -134,18 +126,20 @@ exports.updateReview = catchAsync(async (req, res) => {
 });
 
 exports.deleteReview = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const reviews = await Review.findOne({
-    id,
-    status: 'active',
-  });
-
-  await Review.update({
-    status: 'deleted',
-  });
-
+  const user = req.sessionUser;
+  const { review } = req;
+  await review.update(
+    { status: 'disabled' },
+    {
+      where: {
+        id: req.params.id,
+        restaurantId: req.params.restaurantId,
+        userId: user.id,
+      },
+    }
+  );
   res.status(200).json({
-    message: 'This review has been deleted',
-    reviews,
+    status: 'success',
+    message: 'Review has been deleted',
   });
 });

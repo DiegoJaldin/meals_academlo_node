@@ -70,7 +70,7 @@ exports.deleteOrder = catchAsync(async (req, res) => {
   const { order } = req;
 
   await order.update({
-    status: 'disabled',
+    status: 'cancelled',
   });
   res.status(200).json({
     message: 'This order has been deleted',

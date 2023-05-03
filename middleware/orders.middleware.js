@@ -10,12 +10,12 @@ exports.validIfExistOrder = catchAsync(async (req, res, next) => {
     where: {
       id,
     },
-    include: [
-      {
-        model: Meal,
-        include: [Restaurant],
-      },
-    ],
+    // include: [
+    //   {
+    //     model: Meal,
+    //     include: [Restaurant],
+    //   },
+    // ],
   });
   if (!order) {
     return next(new AppError(`Order with this ID doesn't exist.`, 404));
